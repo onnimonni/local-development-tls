@@ -1,12 +1,12 @@
-name: Local development TLS
-description: Trusted Let's Encrypt certificate for local development hostnames, kept as a private repository's artifact
+name: Real HTTPS certificate generator
+description: A publicly trusted Let's Encrypt certificate via Cloudflare DNS, kept as the private repository's https-certificate.pem artifact
 branding:
   icon: lock
   color: green
 
 inputs:
   domains:
-    description: Comma-separated names to certify, e.g. "dev.example.com,*.dev.example.com"
+    description: Comma-separated names to certify, e.g. "example.com,*.example.com"
     required: true
   cloudflare-token:
     description: Cloudflare API token with Zone:DNS:Edit and Zone:Zone:Read of the zone
@@ -45,11 +45,11 @@ runs:
         docker run --rm --user "$(id -u):$(id -g)" -e CLOUDFLARE_DNS_API_TOKEN -e LEGO_SERVER -v "$RUNNER_TEMP/lego:/data" \
           goacme/lego:v5.5.2@sha256:1944e8c36055beec47c7de6f15202b41128be75eea0ffa257f0c14d93c5155fd \
           run --accept-tos --dns cloudflare --key-type ec256 --path /data --pem \
-          --cert.name local-development-tls --domains "${DOMAINS// /}"
+          --cert.name https-certificate --domains "${DOMAINS// /}"
 
     - name: Upload certificate
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
-        path: ${{ runner.temp }}/lego/certificates/local-development-tls.pem
+        path: ${{ runner.temp }}/lego/certificates/https-certificate.pem
         archive: false
         retention-days: ${{ inputs.retention-days }}
