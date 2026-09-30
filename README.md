@@ -44,7 +44,7 @@ wants HTTPS.
 
    ```sh
    cd your-project-folder
-   gh variable set HTTPS_CERTIFICATE_DOMAINS --body 'example-dev.com,*.example-dev.com'
+   gh variable set HTTPS_CERTIFICATE_DOMAINS --body "$(echo example-dev.com '*.'{app,api,simulator}.example-dev.com | tr ' ' ,)"
    gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN   # paste the token
    gh api -X PUT 'repos/{owner}/{repo}/contents/.github/workflows/https-certificate.yml' \
      -f message="Add HTTPS certificate workflow" \
@@ -73,6 +73,12 @@ wants HTTPS.
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
    ```
+
+> [!TIP]
+> `{app,api,simulator}` is expanded by your shell (bash or zsh) into one name each,
+> so the variable holds
+> `example-dev.com,*.app.example-dev.com,*.api.example-dev.com,*.simulator.example-dev.com`.
+> Keep the braces outside the quotes, and the `*.` inside them.
 
 > [!IMPORTANT]
 > Your `gh` login needs the `workflow` scope to commit a workflow:
