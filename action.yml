@@ -1,4 +1,4 @@
-name: Trusted HTTPS certificate generator
+name: Trusted HTTPS certificate to artifacts
 description: A publicly trusted Let's Encrypt certificate via Cloudflare DNS, kept as the private repository's https-certificate.pem artifact
 branding:
   icon: lock
