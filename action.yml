@@ -6,7 +6,7 @@ branding:
 
 inputs:
   domains:
-    description: Comma-separated names to certify, e.g. "example.com,*.example.com"
+    description: Comma-separated names to certify, with {a,b} brace expansion, e.g. "{app,api}.example.com,*.example.com"
     required: true
   cloudflare-token:
     description: Cloudflare API token with Zone:DNS:Edit and Zone:Zone:Read of the zone
@@ -33,7 +33,17 @@ runs:
           echo "::error::$GITHUB_REPOSITORY is not private"
           exit 1
         fi
-        if [ -z "${DOMAINS//[ ,]/}" ]; then
+        expand() {
+          if [[ $1 =~ ^(.*)\{([^{}]*)\}(.*)$ ]]; then
+            local pre=${BASH_REMATCH[1]} post=${BASH_REMATCH[3]} alt alts
+            IFS=, read -ra alts <<< "${BASH_REMATCH[2]}"
+            for alt in "${alts[@]}"; do expand "$pre$alt$post"; done
+          else
+            echo "$1"
+          fi
+        }
+        names=$(expand "{${DOMAINS// /}}" | grep . | sort -u | paste -sd, -)
+        if [ -z "$names" ]; then
           echo "::error::No domains"
           exit 1
         fi
@@ -45,7 +55,7 @@ runs:
         docker run --rm --user "$(id -u):$(id -g)" -e CLOUDFLARE_DNS_API_TOKEN -e LEGO_SERVER -v "$RUNNER_TEMP/lego:/data" \
           goacme/lego:v5.5.2@sha256:1944e8c36055beec47c7de6f15202b41128be75eea0ffa257f0c14d93c5155fd \
           run --accept-tos --dns cloudflare --key-type ec256 --path /data --pem \
-          --cert.name https-certificate --domains "${DOMAINS// /}"
+          --cert.name https-certificate --domains "$names"
 
     - name: Upload certificate
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
