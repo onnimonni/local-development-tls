@@ -1,6 +1,6 @@
 # local-development-tls
 
-A reusable GitHub Actions workflow that issues a publicly trusted Let's Encrypt
+A GitHub Action that issues a publicly trusted Let's Encrypt
 certificate for development hostnames that point at `127.0.0.1`, such as
 `*.dev.example.com`, and keeps it as an artifact of your **private** repository.
 
@@ -40,28 +40,26 @@ installing a local CA. The certificate and its key never enter git.
 
    jobs:
      renew:
-       uses: onnimonni/local-development-tls/.github/workflows/renew.yml@v1
-       with:
-         domains: ${{ vars.LOCAL_DEVELOPMENT_TLS_DOMAINS }}
-       secrets:
-         cloudflare-token: ${{ secrets.LOCAL_DEVELOPMENT_TLS_CLOUDFLARE_TOKEN }}
+       runs-on: ubuntu-latest
+       steps:
+         - uses: onnimonni/local-development-tls@v1
+           with:
+             domains: ${{ vars.LOCAL_DEVELOPMENT_TLS_DOMAINS }}
+             cloudflare-token: ${{ secrets.LOCAL_DEVELOPMENT_TLS_CLOUDFLARE_TOKEN }}
    ```
 
    Run it once by hand (Actions → Local development certificate → Run workflow).
    Monthly runs keep a 90-day certificate with 60 days to spare; run it by hand after
-   changing the names.
+   changing the names. It needs a Linux runner with Docker (`ubuntu-latest` has it).
 
 ## Inputs
 
 | Input | Default | |
 |---|---|---|
 | `domains` | | Comma-separated names to certify. |
+| `cloudflare-token` | | The Cloudflare API token; pass it from a secret. |
 | `server` | `letsencrypt` | ACME server: a URL or a lego shortcode. Try `letsencrypt-staging` first: untrusted certificates, no rate limits (production allows 50 certificates per domain a week). |
 | `retention-days` | `90` | How long the artifact is kept. |
-
-| Secret | |
-|---|---|
-| `cloudflare-token` | The Cloudflare API token. |
 
 ## Using the certificate
 
