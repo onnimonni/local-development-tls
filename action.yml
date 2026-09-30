@@ -6,7 +6,7 @@ branding:
 
 inputs:
   domains:
-    description: Comma-separated names to certify, with {a,b} brace expansion, e.g. "{app,api}.example.com,*.example.com". One certificate per registered domain (and per 100 names), at most 20
+    description: Comma-separated names to certify, with {a,b} brace expansion, e.g. "{app,api}.example.com,*.example.com". One certificate per registered domain, split by subdomain past 100 names; at most 20
     required: true
   cloudflare-token:
     description: Cloudflare API token with Zone:DNS:Edit and Zone:Zone:Read of the zone
@@ -73,19 +73,47 @@ runs:
           labels.last(second_level ? 3 : 2).join(".")
         end
 
+        def below(name, suffix)
+          name == suffix ? [] : name.delete_suffix(".#{suffix}").split(".")
+        end
+
+        # `_._.app.example.com` for names up to two labels below app.example.com (`_` for
+        # any label, like lego names wildcard certificates: artifacts can't hold `*`).
+        def file_name(names, labels, suffix)
+          base = labels.empty? ? suffix : "#{labels.one? ? labels.first : "{#{labels.join(",")}}"}.#{suffix}"
+          depth = names.map { |name| below(name, suffix).size }.max - (labels.empty? ? 0 : 1)
+          (["_"] * depth + [base]).join(".").tr("*", "_")
+        end
+
+        # Up to 100 names under `suffix` share one certificate; more are split by the label
+        # right below it, packing its groups in order, and a group over 100 one level deeper.
+        def plan(names, suffix)
+          return [[file_name(names, [], suffix), names]] if names.size <= 100
+          split, packed = [], []
+          names.group_by { |name| below(name, suffix).last }.sort_by { |label, _| label.to_s }.each do |label, group|
+            if label && group.size > 100
+              split.concat(plan(group, "#{label}.#{suffix}"))
+            elsif packed.empty? || packed.last[1].size + group.size > 100
+              packed << [[label].compact, group]
+            else
+              packed.last[0] << label if label
+              packed.last[1].concat(group)
+            end
+          end
+          packed.map { |labels, group| [file_name(group, labels, suffix), group] } + split
+        end
+
         names = expand("{#{ENV.fetch("DOMAINS").delete(" ")}}").reject(&:empty?).uniq.sort
         raise "No domains" if names.empty?
 
-        certificates = names.group_by { |name| registered_domain(name) }.sort.flat_map do |domain, group|
-          group.each_slice(100).with_index.map { |slice, i| [i.zero? ? domain : "#{domain}-#{i + 1}", slice] }
-        end
+        certificates = names.group_by { |name| registered_domain(name) }.sort.flat_map { |domain, group| plan(group, domain) }
         raise "#{certificates.size} certificates: at most 20" if certificates.size > 20
 
-        File.write(ENV.fetch("PLAN"), certificates.map { |file, slice| "#{file}\t#{slice.join(",")}\n" }.join)
+        File.write(ENV.fetch("PLAN"), certificates.map.with_index(1) { |(file, group), i| "cert-#{i}\t#{file}\t#{group.join(",")}\n" }.join)
         File.write(ENV.fetch("GITHUB_STEP_SUMMARY"), <<~SUMMARY, mode: "a")
           | Certificate | Names |
           |---|---|
-          #{certificates.map { |file, slice| "| `#{file}.pem` | `#{compress(slice).join(",")}` |" }.join("\n")}
+          #{certificates.map { |file, group| "| `#{file}.pem` | `#{compress(group).join(",")}` |" }.join("\n")}
         SUMMARY
 
     - name: Issue certificates
@@ -96,12 +124,12 @@ runs:
         PLAN: ${{ runner.temp }}/https-certificate-plan
       run: |
         mkdir -m 700 "$RUNNER_TEMP/lego" "$RUNNER_TEMP/https-certificate"
-        while IFS=$'\t' read -r cert names; do
+        while IFS=$'\t' read -r cert file names; do
           docker run --rm --user "$(id -u):$(id -g)" -e CLOUDFLARE_DNS_API_TOKEN -e LEGO_SERVER -v "$RUNNER_TEMP/lego:/data" \
             goacme/lego:v5.5.2@sha256:1944e8c36055beec47c7de6f15202b41128be75eea0ffa257f0c14d93c5155fd \
             run --accept-tos --dns cloudflare --key-type ec256 --path /data --pem \
             --cert.name "$cert" --domains "$names" < /dev/null
-          cp "$RUNNER_TEMP/lego/certificates/$cert.pem" "$RUNNER_TEMP/https-certificate/"
+          cp "$RUNNER_TEMP/lego/certificates/$cert.pem" "$RUNNER_TEMP/https-certificate/$file.pem"
         done < "$PLAN"
 
     - name: Upload certificates
