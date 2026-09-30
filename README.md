@@ -101,9 +101,10 @@ a Linux runner with Docker (`ubuntu-latest` has it).
 Anyone who can read the repository can download it with `gh`:
 
 ```sh
-id=$(gh api "repos/OWNER/REPO/actions/artifacts?name=https-certificate.pem" \
+cd your-project-folder
+id=$(gh api 'repos/{owner}/{repo}/actions/artifacts?name=https-certificate.pem' \
   --jq '[.artifacts[] | select(.expired | not)] | sort_by(.created_at) | last | .id')
-gh api "repos/OWNER/REPO/actions/artifacts/$id/zip" > https-certificate.pem
+gh api "repos/{owner}/{repo}/actions/artifacts/$id/zip" > https-certificate.pem
 ```
 
 > [!NOTE]
