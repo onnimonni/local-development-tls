@@ -110,6 +110,12 @@ runs:
         names = expand("{#{ENV.fetch("DOMAINS").delete(" ")}}").reject(&:empty?).uniq.sort
         raise "No domains" if names.empty?
 
+        # A wildcard covers one label: `*.example.com` makes `app.example.com` redundant.
+        wildcards = names.select { |name| name.start_with?("*.") }
+        covered, names = names.partition do |name|
+          !name.start_with?("*.") && wildcards.include?("*.#{name.split(".", 2).last}")
+        end
+
         certificates = names.group_by { |name| registered_domain(name) }.sort.flat_map { |domain, group| plan(group, domain) }
         raise "#{certificates.size} certificates: at most 20" if certificates.size > 20
 
@@ -119,6 +125,12 @@ runs:
           |---|---|
           #{certificates.map { |file, group| "| `#{file}.pem` | `#{compress(group).join(",")}` |" }.join("\n")}
         SUMMARY
+        unless covered.empty?
+          File.write(ENV.fetch("GITHUB_STEP_SUMMARY"), <<~SUMMARY, mode: "a")
+
+            Left out, covered by a wildcard: `#{compress(covered).join(",")}`
+          SUMMARY
+        end
 
     - name: Issue certificates
       shell: bash
