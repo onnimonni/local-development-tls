@@ -11,7 +11,7 @@ jobs:
   renew:
     runs-on: ubuntu-latest
     steps:
-      - uses: onnimonni/real-https-certificate-generator@ebf4b09ad4e295214f780ffdb6f5126f4b546083 # v1.0.0
+      - uses: onnimonni/trusted-https-certificate-generator-action@8544f7e1617ddf32a48b81884bbcb7a3d2ed5379 # v1.0.0
         with:
           domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
           cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}

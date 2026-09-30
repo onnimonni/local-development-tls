@@ -1,6 +1,6 @@
-# real-https-certificate-generator
+# trusted-https-certificate-generator-action
 
-A GitHub Action that issues a real, publicly trusted Let's Encrypt certificate and
+A GitHub Action that issues a publicly trusted Let's Encrypt certificate and
 keeps it as an artifact of your **private** repository: no self-signed certificates,
 no local CA to install. Use it for development hostnames that point at `127.0.0.1`
 (`*.dev.example.com`), internal services, test environments or anything else that
@@ -33,7 +33,7 @@ wants HTTPS.
    gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN -R "$REPO"   # paste the token
    gh api -X PUT "repos/$REPO/contents/.github/workflows/https-certificate.yml" \
      -f message="Add HTTPS certificate workflow" \
-     -f content="$(gh api -H 'Accept: application/vnd.github.raw' repos/onnimonni/real-https-certificate-generator/contents/example.yml | base64 | tr -d '\n')"
+     -f content="$(gh api -H 'Accept: application/vnd.github.raw' repos/onnimonni/trusted-https-certificate-generator-action/contents/example.yml | base64 | tr -d '\n')"
    gh workflow run https-certificate.yml -R "$REPO"
    ```
 
@@ -55,7 +55,7 @@ wants HTTPS.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/real-https-certificate-generator@ebf4b09ad4e295214f780ffdb6f5126f4b546083 # v1.0.0
+         - uses: onnimonni/trusted-https-certificate-generator-action@8544f7e1617ddf32a48b81884bbcb7a3d2ed5379 # v1.0.0
            with:
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
