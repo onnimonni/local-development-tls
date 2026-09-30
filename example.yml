@@ -1,4 +1,4 @@
-name: Local development certificate
+name: HTTPS certificate
 
 on:
   schedule:
@@ -11,7 +11,7 @@ jobs:
   renew:
     runs-on: ubuntu-latest
     steps:
-      - uses: onnimonni/local-development-tls@d80e09e0d75e047d0c9ca6b775157dc2d4d9b830 # v1.0.0
+      - uses: onnimonni/real-https-certificate-generator@ebf4b09ad4e295214f780ffdb6f5126f4b546083 # v1.0.0
         with:
-          domains: ${{ vars.LOCAL_DEVELOPMENT_TLS_DOMAINS }}
-          cloudflare-token: ${{ secrets.LOCAL_DEVELOPMENT_TLS_CLOUDFLARE_TOKEN }}
+          domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
+          cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
