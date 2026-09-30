@@ -1,4 +1,4 @@
-# trusted-https-certificate-generator-action
+# trusted-https-certificate-to-artifacts-action
 
 A GitHub Action that issues a publicly trusted Let's Encrypt certificate and
 keeps it as an artifact of your **private** repository: no self-signed certificates,
@@ -33,7 +33,7 @@ wants HTTPS.
    gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN -R "$REPO"   # paste the token
    gh api -X PUT "repos/$REPO/contents/.github/workflows/https-certificate.yml" \
      -f message="Add HTTPS certificate workflow" \
-     -f content="$(gh api -H 'Accept: application/vnd.github.raw' repos/onnimonni/trusted-https-certificate-generator-action/contents/example.yml | base64 | tr -d '\n')"
+     -f content="$(gh api -H 'Accept: application/vnd.github.raw' repos/onnimonni/trusted-https-certificate-to-artifacts-action/contents/example.yml | base64 | tr -d '\n')"
    gh workflow run https-certificate.yml -R "$REPO"
    ```
 
@@ -55,7 +55,7 @@ wants HTTPS.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/trusted-https-certificate-generator-action@8544f7e1617ddf32a48b81884bbcb7a3d2ed5379 # v1.0.0
+         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@9ed1428638d8f90d65156d5b10e44a2ee20e2929 # v1.0.0
            with:
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
