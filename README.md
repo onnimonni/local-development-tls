@@ -42,7 +42,7 @@ installing a local CA. The certificate and its key never enter git.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/local-development-tls@v1
+         - uses: onnimonni/local-development-tls@d80e09e0d75e047d0c9ca6b775157dc2d4d9b830 # v1.0.0
            with:
              domains: ${{ vars.LOCAL_DEVELOPMENT_TLS_DOMAINS }}
              cloudflare-token: ${{ secrets.LOCAL_DEVELOPMENT_TLS_CLOUDFLARE_TOKEN }}
