@@ -76,7 +76,7 @@ wants HTTPS.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@6836fa628b8cf66a3039d5f5007d50fb25d6a2c2 # v2.1.0
+         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@a758f05916c6a6a486c93c66e0207c349b5de083 # v2.2.0
            with:
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
