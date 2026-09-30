@@ -52,7 +52,7 @@ wants HTTPS.
 
    ```sh
    cd your-project-folder
-   gh variable set HTTPS_CERTIFICATE_DOMAINS --body '{app,api,simulator}.example-dev.com,*.different-domain.com'
+   gh variable set HTTPS_CERTIFICATE_DOMAINS --body '{,*.}{web,api,simulator}.myapp.example-dev.com,{,*.}another.com'
    gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN   # paste the token
    gh api -X PUT 'repos/{owner}/{repo}/contents/.github/workflows/https-certificate.yml' \
      -f message="Add HTTPS certificate workflow" \
@@ -83,9 +83,16 @@ wants HTTPS.
    ```
 
 > [!TIP]
-> Names are comma-separated and `{a,b}` expands like in bash: the example above
-> certifies `app.example-dev.com`, `api.example-dev.com`, `simulator.example-dev.com`
-> and `*.different-domain.com`. Both domains need to be in Cloudflare.
+> Names are comma-separated and `{a,b}` expands like in bash; an empty choice,
+> `{,*.}`, gives a name both as is and as a wildcard. The example above is 8 names in
+> 2 certificates, one per domain:
+>
+> | Certificate | Names |
+> |---|---|
+> | `_._._.example-dev.com.pem` | `web.myapp.example-dev.com`, `*.web.myapp.example-dev.com`, the same for `api` and `simulator` |
+> | `_.another.com.pem` | `another.com`, `*.another.com` |
+>
+> Both domains need to be in Cloudflare.
 
 > [!IMPORTANT]
 > Your `gh` login needs the `workflow` scope to commit a workflow:
