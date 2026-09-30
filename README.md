@@ -21,24 +21,26 @@ wants HTTPS.
 
 ## Setup
 
-1. **DNS** in Cloudflare for the names, preferably on a domain used only for this (see
-   below), e.g. `*.example-dev.com` A `127.0.0.1` (DNS only, not proxied) for local
-   development.
+1. **Buy a separate domain** just for this, e.g. `example-dev.com`, and add it to
+   Cloudflare (or buy it from [Cloudflare Registrar](https://domains.cloudflare.com)).
+
+> [!WARNING]
+> Cloudflare can't limit the API token to TXT records: it can change every DNS record
+> of its zone. With a domain of its own, a leaked token can't touch your real website
+> or email.
+
+2. **DNS record** for the names, e.g. `*.example-dev.com` A `127.0.0.1` (DNS only, not
+   proxied) for local development.
 
 > [!NOTE]
 > Some routers' DNS rebinding protection (Fritzbox, pfSense, dnsmasq
 > `stop-dns-rebind`) drops answers pointing at 127.0.0.1: allow the domain there.
 
-2. **[Cloudflare API token](https://dash.cloudflare.com/profile/api-tokens)** (Create
+3. **[Cloudflare API token](https://dash.cloudflare.com/profile/api-tokens)** (Create
    Token → Custom token) with **Zone → DNS → Edit** and **Zone → Zone → Read**, for
-   your zone only.
+   that zone only.
 
-> [!WARNING]
-> Buy a separate domain just for this, e.g. `example-dev.com`. Cloudflare can't limit
-> the token to TXT records: it can change every DNS record of its zone. With a domain
-> of its own, a leaked token can't touch your real website or email.
-
-3. **In the repository**, from any directory:
+4. **In the repository**, from any directory:
 
    ```sh
    REPO=owner/repo
