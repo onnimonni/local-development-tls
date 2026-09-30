@@ -79,8 +79,12 @@ runs:
 
         # `_._.app.example.com` for names up to two labels below app.example.com (`_` for
         # any label, like lego names wildcard certificates: artifacts can't hold `*`).
+        # Packed labels past 100 characters shorten to `{first..last}`: a file name is at
+        # most 255 bytes, and the packed groups are sorted and disjoint, so it stays unique.
         def file_name(names, labels, suffix)
-          base = labels.empty? ? suffix : "#{labels.one? ? labels.first : "{#{labels.join(",")}}"}.#{suffix}"
+          listed = labels.join(",")
+          listed = "#{labels.first}..#{labels.last}" if listed.size > 100
+          base = labels.empty? ? suffix : "#{labels.one? ? labels.first : "{#{listed}}"}.#{suffix}"
           depth = names.map { |name| below(name, suffix).size }.max - (labels.empty? ? 0 : 1)
           (["_"] * depth + [base]).join(".").tr("*", "_")
         end
