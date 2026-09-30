@@ -1,9 +1,10 @@
 # trusted-https-certificate-to-artifacts-action
 
 > [!CAUTION]
-> ❗ **The artifact contains the private key. The action refuses to run in a public
-> repository, whose artifacts and logs anyone can download. Everyone who can read
-> your private repository can read the key.**
+> ❗ **Generates real trusted https certificates with private keys into Github repo
+> artifacts. The action refuses to run in a public repository, whose artifacts and
+> logs anyone can download. Everyone who can read your private repository can read
+> the key.**
 
 A GitHub Action that issues a publicly trusted Let's Encrypt certificate and
 keeps it as an artifact of your **private** repository: no self-signed certificates,
