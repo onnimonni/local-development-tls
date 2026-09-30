@@ -12,19 +12,29 @@ wants HTTPS.
 - Every run issues a new certificate with a new key and uploads it as one PEM file,
   the chain followed by the key: the artifact `https-certificate.pem`, unzipped,
   kept 90 days.
-- It refuses to run in a public repository: public repositories' artifacts and logs
-  are public.
+
+> [!CAUTION]
+> The artifact contains the private key. The action refuses to run in a public
+> repository, whose artifacts and logs anyone can download. Everyone who can read
+> your private repository can read the key.
 
 ## Setup
 
 1. **DNS** in Cloudflare for the names, e.g. `*.dev.example.com` A `127.0.0.1` (DNS
-   only, not proxied) for local development. Some routers' DNS rebinding protection
-   drops answers pointing at 127.0.0.1: allow the domain there.
+   only, not proxied) for local development.
+
+> [!NOTE]
+> Some routers' DNS rebinding protection (Fritzbox, pfSense, dnsmasq
+> `stop-dns-rebind`) drops answers pointing at 127.0.0.1: allow the domain there.
+
 2. **Cloudflare API token** (My Profile → API Tokens → Create Token → Custom token):
    **Zone → DNS → Edit** (the `_acme-challenge` TXT records) and **Zone → Zone → Read**
-   (finding the zone); Zone Resources: Include → Specific zone → your zone. It can't
-   be limited to TXT records: give the names a zone of their own to keep it from your
-   other records.
+   (finding the zone); Zone Resources: Include → Specific zone → your zone.
+
+> [!WARNING]
+> Cloudflare can't limit the token to TXT records: it can edit every record in the
+> zone. Give the names a zone of their own to keep it away from your other records.
+
 3. **In the repository**, from any directory:
 
    ```sh
@@ -37,20 +47,18 @@ wants HTTPS.
    gh workflow run https-certificate.yml -R "$REPO"
    ```
 
-   This commits [`example.yml`](example.yml) to the default branch (your `gh`
-   login needs the `workflow` scope: `gh auth refresh -s workflow`) and runs it
-   once:
+   This commits [`example.yml`](example.yml) to the default branch and runs it once:
 
    ```yaml
    name: HTTPS certificate
-   
+
    on:
      schedule:
        - cron: "17 4 1 * *"
      workflow_dispatch:
-   
+
    permissions: {}
-   
+
    jobs:
      renew:
        runs-on: ubuntu-latest
@@ -61,9 +69,18 @@ wants HTTPS.
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
    ```
 
-   Monthly runs keep a 90-day certificate with 60 days to spare; run it by hand
-   (`gh workflow run https-certificate.yml`) after changing the names. A wildcard
-   covers one label. It needs a Linux runner with Docker (`ubuntu-latest` has it).
+> [!IMPORTANT]
+> Your `gh` login needs the `workflow` scope to commit a workflow:
+> `gh auth refresh -s workflow`.
+
+> [!TIP]
+> Try it with `server: letsencrypt-staging` first: untrusted certificates, but no
+> rate limits (production allows 50 certificates per domain a week).
+
+Monthly runs keep a 90-day certificate with 60 days to spare; run it by hand
+(`gh workflow run https-certificate.yml`) after changing the names. A wildcard
+covers one label: `*.dev.example.com` doesn't cover `a.b.dev.example.com`. It needs
+a Linux runner with Docker (`ubuntu-latest` has it).
 
 ## Inputs
 
@@ -71,7 +88,7 @@ wants HTTPS.
 |---|---|---|
 | `domains` | | Comma-separated names to certify. |
 | `cloudflare-token` | | The Cloudflare API token; pass it from a secret. |
-| `server` | `letsencrypt` | ACME server: a URL or a lego shortcode. Try `letsencrypt-staging` first: untrusted certificates, no rate limits (production allows 50 certificates per domain a week). |
+| `server` | `letsencrypt` | ACME server: a URL or a lego shortcode such as `letsencrypt-staging`. |
 | `retention-days` | `90` | How long the artifact is kept. |
 
 ## Using the certificate
@@ -84,8 +101,9 @@ id=$(gh api "repos/OWNER/REPO/actions/artifacts?name=https-certificate.pem" \
 gh api "repos/OWNER/REPO/actions/artifacts/$id/zip" > https-certificate.pem
 ```
 
-The endpoint says `zip`, but the file comes back as is. `gh run download` doesn't
-work: it expects zip files.
+> [!NOTE]
+> The endpoint says `zip`, but the file comes back as is. `gh run download` doesn't
+> work: it expects zip files.
 
 ## License
 
