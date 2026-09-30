@@ -21,8 +21,9 @@ wants HTTPS.
 
 ## Setup
 
-1. **DNS** in Cloudflare for the names, e.g. `*.dev.example.com` A `127.0.0.1` (DNS
-   only, not proxied) for local development.
+1. **DNS** in Cloudflare for the names, preferably on a domain used only for this (see
+   below), e.g. `*.example-dev.com` A `127.0.0.1` (DNS only, not proxied) for local
+   development.
 
 > [!NOTE]
 > Some routers' DNS rebinding protection (Fritzbox, pfSense, dnsmasq
@@ -33,8 +34,9 @@ wants HTTPS.
    your zone only.
 
 > [!WARNING]
-> Cloudflare can't limit the token to TXT records: it can edit every record in the
-> zone. Give the names a zone of their own to keep it away from your other records.
+> Buy a separate domain just for this, e.g. `example-dev.com`. Cloudflare can't limit
+> the token to TXT records: it can change every DNS record of its zone. With a domain
+> of its own, a leaked token can't touch your real website or email.
 
 3. **In the repository**, from any directory:
 
