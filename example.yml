@@ -2,7 +2,7 @@ name: HTTPS certificate
 
 on:
   schedule:
-    - cron: "17 4 1 * *"
+    - cron: "17 4 1,16 * *"
   workflow_dispatch:
 
 permissions: {}

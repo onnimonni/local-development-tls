@@ -16,7 +16,7 @@ inputs:
     default: letsencrypt
   retention-days:
     description: How long the artifact is kept
-    default: "90"
+    default: "60"
 
 runs:
   using: composite
