@@ -9,7 +9,7 @@
 A GitHub Action that issues a publicly trusted Let's Encrypt certificate and
 keeps it as an artifact of your **private** repository: no self-signed certificates,
 no local CA to install. Use it for development hostnames that point at `127.0.0.1`
-(`*.dev.example.com`), internal services, test environments or anything else that
+(`*.example-dev.com`), internal services, test environments or anything else that
 wants HTTPS.
 
 - Validation is DNS-01 through Cloudflare, with [lego](https://go-acme.github.io/lego/)'s
@@ -42,7 +42,7 @@ wants HTTPS.
 
    ```sh
    REPO=owner/repo
-   gh variable set HTTPS_CERTIFICATE_DOMAINS -R "$REPO" --body 'dev.example.com,*.dev.example.com'
+   gh variable set HTTPS_CERTIFICATE_DOMAINS -R "$REPO" --body 'example-dev.com,*.example-dev.com'
    gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN -R "$REPO"   # paste the token
    gh api -X PUT "repos/$REPO/contents/.github/workflows/https-certificate.yml" \
      -f message="Add HTTPS certificate workflow" \
@@ -82,7 +82,7 @@ wants HTTPS.
 
 Monthly runs keep a 90-day certificate with 60 days to spare; run it by hand
 (`gh workflow run https-certificate.yml`) after changing the names. A wildcard
-covers one label: `*.dev.example.com` doesn't cover `a.b.dev.example.com`. It needs
+covers one label: `*.example-dev.com` doesn't cover `a.b.example-dev.com`. It needs
 a Linux runner with Docker (`ubuntu-latest` has it).
 
 ## Inputs
