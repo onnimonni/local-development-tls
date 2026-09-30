@@ -15,6 +15,25 @@ installing a local CA. The certificate and its key never enter git.
 - It refuses to run in a public repository: public repositories' artifacts and logs
   are public.
 
+## Quick setup with `gh`
+
+After the DNS record and the Cloudflare token (steps 1 and 2 below), from any
+directory:
+
+```sh
+REPO=owner/repo
+gh variable set LOCAL_DEVELOPMENT_TLS_DOMAINS -R "$REPO" --body 'dev.example.com,*.dev.example.com'
+gh secret set LOCAL_DEVELOPMENT_TLS_CLOUDFLARE_TOKEN -R "$REPO"   # paste the token
+gh api -X PUT "repos/$REPO/contents/.github/workflows/local-development-tls.yml" \
+  -f message="Add local development certificate workflow" \
+  -f content="$(gh api -H 'Accept: application/vnd.github.raw' repos/onnimonni/local-development-tls/contents/example.yml | base64 | tr -d '\n')"
+gh workflow run local-development-tls.yml -R "$REPO"
+```
+
+This commits [`example.yml`](example.yml) to the repository's default branch
+(your `gh` login needs the `workflow` scope: `gh auth refresh -s workflow`) and runs
+it once.
+
 ## Setup
 
 1. **DNS** in Cloudflare: `*.dev.example.com` A `127.0.0.1`, DNS only (not proxied).
