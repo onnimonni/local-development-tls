@@ -68,7 +68,7 @@ wants HTTPS.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@1951d1d40a6e169df2357941a71beed9fb0c67d8 # v1.1.0
+         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@419a9cce22acadc0065c2c309a7a1afd555a0e85 # v1.2.0
            with:
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
@@ -96,7 +96,7 @@ a Linux runner with Docker (`ubuntu-latest` has it).
 
 | Input | Default | |
 |---|---|---|
-| `domains` | | Comma-separated names to certify; `{a,b}` expands like in bash. |
+| `domains` | | Comma-separated names to certify; `{a,b}` expands like in bash. At most 100 names after expansion, Let's Encrypt's limit. |
 | `cloudflare-token` | | The Cloudflare API token; pass it from a secret. |
 | `server` | `letsencrypt` | ACME server: a URL or a lego shortcode such as `letsencrypt-staging`. |
 | `retention-days` | `90` | How long the artifact is kept. |
