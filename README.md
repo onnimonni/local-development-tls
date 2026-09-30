@@ -40,16 +40,16 @@ wants HTTPS.
    Token → Custom token) with **Zone → DNS → Edit** and **Zone → Zone → Read**, for
    that zone only.
 
-4. **In the repository**, from any directory:
+4. **In the repository**:
 
    ```sh
-   REPO=owner/repo
-   gh variable set HTTPS_CERTIFICATE_DOMAINS -R "$REPO" --body 'example-dev.com,*.example-dev.com'
-   gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN -R "$REPO"   # paste the token
-   gh api -X PUT "repos/$REPO/contents/.github/workflows/https-certificate.yml" \
+   cd your-project-folder
+   gh variable set HTTPS_CERTIFICATE_DOMAINS --body 'example-dev.com,*.example-dev.com'
+   gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN   # paste the token
+   gh api -X PUT 'repos/{owner}/{repo}/contents/.github/workflows/https-certificate.yml' \
      -f message="Add HTTPS certificate workflow" \
      -f content="$(gh api -H 'Accept: application/vnd.github.raw' repos/onnimonni/trusted-https-certificate-to-artifacts-action/contents/example.yml | base64 | tr -d '\n')"
-   gh workflow run https-certificate.yml -R "$REPO"
+   gh workflow run https-certificate.yml
    ```
 
    This commits [`example.yml`](example.yml) to the default branch and runs it once:
