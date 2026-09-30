@@ -14,9 +14,9 @@ wants HTTPS.
   kept 90 days.
 
 > [!CAUTION]
-> The artifact contains the private key. The action refuses to run in a public
+> ❗ **The artifact contains the private key. The action refuses to run in a public
 > repository, whose artifacts and logs anyone can download. Everyone who can read
-> your private repository can read the key.
+> your private repository can read the key.**
 
 ## Setup
 
