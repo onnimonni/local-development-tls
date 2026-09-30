@@ -1,5 +1,10 @@
 # trusted-https-certificate-to-artifacts-action
 
+> [!CAUTION]
+> ❗ **The artifact contains the private key. The action refuses to run in a public
+> repository, whose artifacts and logs anyone can download. Everyone who can read
+> your private repository can read the key.**
+
 A GitHub Action that issues a publicly trusted Let's Encrypt certificate and
 keeps it as an artifact of your **private** repository: no self-signed certificates,
 no local CA to install. Use it for development hostnames that point at `127.0.0.1`
@@ -12,11 +17,6 @@ wants HTTPS.
 - Every run issues a new certificate with a new key and uploads it as one PEM file,
   the chain followed by the key: the artifact `https-certificate.pem`, unzipped,
   kept 90 days.
-
-> [!CAUTION]
-> ❗ **The artifact contains the private key. The action refuses to run in a public
-> repository, whose artifacts and logs anyone can download. Everyone who can read
-> your private repository can read the key.**
 
 ## Setup
 
