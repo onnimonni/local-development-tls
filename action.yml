@@ -47,6 +47,11 @@ runs:
           echo "::error::No domains"
           exit 1
         fi
+        count=$(tr , '\n' <<< "$names" | grep -c .)
+        if [ "$count" -gt 100 ]; then
+          echo "::error::$count names: a certificate can have at most 100"
+          exit 1
+        fi
         if [ -z "$CLOUDFLARE_DNS_API_TOKEN" ]; then
           echo "::error::No cloudflare-token"
           exit 1
