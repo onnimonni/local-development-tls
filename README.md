@@ -76,9 +76,6 @@ gh api "repos/OWNER/REPO/actions/artifacts/$id/zip" > local-development-tls.pem
 The endpoint says `zip`, but the file comes back as is. `gh run download` doesn't
 work: it expects zip files.
 
-[lazy-cow-tree](https://github.com/onnimonni/devenv-lazy-cow-worktrees) reads it
-this way and serves it for every worktree's hostnames.
-
 ## License
 
 MIT
