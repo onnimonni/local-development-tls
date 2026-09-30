@@ -15,14 +15,17 @@ wants HTTPS.
 - Validation is DNS-01 through Cloudflare, with [lego](https://go-acme.github.io/lego/)'s
   Docker image pinned by digest, so the names don't need to be reachable from the
   internet.
-- Every run issues new certificates with new keys: one per registered domain (and
-  per 100 names), as combined PEM files (the chain followed by the key), zipped into
-  the artifact `https-certificate`, kept 90 days. The run's summary lists them:
+- Every run issues new certificates with new keys as combined PEM files (the chain
+  followed by the key), zipped into the artifact `https-certificate`, kept 90 days:
+  one per registered domain, named after what it covers with `_` for any label
+  (like lego names wildcard certificates). Past 100 names (Let's Encrypt's limit) a
+  domain is split by its highest subdomain level. The run's summary lists them:
 
   | Certificate | Names |
   |---|---|
-  | `different-domain.com.pem` | `*.different-domain.com` |
-  | `example-dev.com.pem` | `{api,app,simulator}.example-dev.com` |
+  | `_.another.com.pem` | `*.another.com` |
+  | `_._.app.example.com.pem` | `{a,b,…}.{a,b,…}.app.example.com` (100 names) |
+  | `_._.{backend,hello}.example.com.pem` | `….x.hello.example.com,….y.backend.example.com` |
 
 ## Setup
 
@@ -73,7 +76,7 @@ wants HTTPS.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@609a84868385b96923ca2d04cf2423729a92e222 # v2.0.0
+         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@6836fa628b8cf66a3039d5f5007d50fb25d6a2c2 # v2.1.0
            with:
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
@@ -101,7 +104,7 @@ a Linux runner with Docker (`ubuntu-latest` has it).
 
 | Input | Default | |
 |---|---|---|
-| `domains` | | Comma-separated names to certify; `{a,b}` expands like in bash. One certificate per registered domain and per 100 names (Let's Encrypt's limit), at most 20. |
+| `domains` | | Comma-separated names to certify; `{a,b}` expands like in bash. One certificate per registered domain, split by subdomain past 100 names (Let's Encrypt's limit); at most 20. |
 | `cloudflare-token` | | The Cloudflare API token; pass it from a secret. |
 | `server` | `letsencrypt` | ACME server: a URL or a lego shortcode such as `letsencrypt-staging`. |
 | `retention-days` | `90` | How long the artifact is kept. |
@@ -115,9 +118,8 @@ cd your-project-folder
 gh run download --name https-certificate --dir certs
 ```
 
-`certs/` then holds one `.pem` per certificate, named after its domain, e.g.
-`example-dev.com.pem` (`example-dev.com-2.pem` past 100 names). Servers take them
-as they are:
+`certs/` then holds one `.pem` per certificate, e.g. `_._._.example-dev.com.pem`.
+Servers take them as they are:
 
 | Server | |
 |---|---|
