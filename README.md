@@ -44,7 +44,7 @@ wants HTTPS.
 
    ```sh
    cd your-project-folder
-   gh variable set HTTPS_CERTIFICATE_DOMAINS --body "$(echo example-dev.com '*.'{app,api,simulator}.example-dev.com | tr ' ' ,)"
+   gh variable set HTTPS_CERTIFICATE_DOMAINS --body '{app,api,simulator}.example-dev.com,*.different-domain.com'
    gh secret set HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN   # paste the token
    gh api -X PUT 'repos/{owner}/{repo}/contents/.github/workflows/https-certificate.yml' \
      -f message="Add HTTPS certificate workflow" \
@@ -68,17 +68,16 @@ wants HTTPS.
      renew:
        runs-on: ubuntu-latest
        steps:
-         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@9ed1428638d8f90d65156d5b10e44a2ee20e2929 # v1.0.0
+         - uses: onnimonni/trusted-https-certificate-to-artifacts-action@1951d1d40a6e169df2357941a71beed9fb0c67d8 # v1.1.0
            with:
              domains: ${{ vars.HTTPS_CERTIFICATE_DOMAINS }}
              cloudflare-token: ${{ secrets.HTTPS_CERTIFICATE_CLOUDFLARE_TOKEN }}
    ```
 
 > [!TIP]
-> `{app,api,simulator}` is expanded by your shell (bash or zsh) into one name each,
-> so the variable holds
-> `example-dev.com,*.app.example-dev.com,*.api.example-dev.com,*.simulator.example-dev.com`.
-> Keep the braces outside the quotes, and the `*.` inside them.
+> Names are comma-separated and `{a,b}` expands like in bash: the example above
+> certifies `app.example-dev.com`, `api.example-dev.com`, `simulator.example-dev.com`
+> and `*.different-domain.com`. Both domains need to be in Cloudflare.
 
 > [!IMPORTANT]
 > Your `gh` login needs the `workflow` scope to commit a workflow:
@@ -97,7 +96,7 @@ a Linux runner with Docker (`ubuntu-latest` has it).
 
 | Input | Default | |
 |---|---|---|
-| `domains` | | Comma-separated names to certify. |
+| `domains` | | Comma-separated names to certify; `{a,b}` expands like in bash. |
 | `cloudflare-token` | | The Cloudflare API token; pass it from a secret. |
 | `server` | `letsencrypt` | ACME server: a URL or a lego shortcode such as `letsencrypt-staging`. |
 | `retention-days` | `90` | How long the artifact is kept. |
