@@ -102,8 +102,8 @@ wants HTTPS.
 > Try it with `server: letsencrypt-staging` first: untrusted certificates, but no
 > rate limits (production allows 50 certificates per domain a week).
 
-Runs on the 1st and 16th keep a 90-day certificate with 75 days to spare, and the
-60-day artifact keeps the newest ones; run it by hand
+Runs on the 1st and 16th keep the newest certificate at most 16 days old, well within
+its 90-day validity and the artifact's 60 days; run it by hand
 (`gh workflow run https-certificate.yml`) after changing the names. A wildcard
 covers one label: `*.example-dev.com` doesn't cover `a.b.example-dev.com`. It needs
 a Linux runner with Docker (`ubuntu-latest` has it).
