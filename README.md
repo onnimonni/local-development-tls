@@ -27,9 +27,9 @@ wants HTTPS.
 > Some routers' DNS rebinding protection (Fritzbox, pfSense, dnsmasq
 > `stop-dns-rebind`) drops answers pointing at 127.0.0.1: allow the domain there.
 
-2. **Cloudflare API token** (My Profile → API Tokens → Create Token → Custom token):
-   **Zone → DNS → Edit** (the `_acme-challenge` TXT records) and **Zone → Zone → Read**
-   (finding the zone); Zone Resources: Include → Specific zone → your zone.
+2. **[Cloudflare API token](https://dash.cloudflare.com/profile/api-tokens)** (Create
+   Token → Custom token) with **Zone → DNS → Edit** and **Zone → Zone → Read**, for
+   your zone only.
 
 > [!WARNING]
 > Cloudflare can't limit the token to TXT records: it can edit every record in the
