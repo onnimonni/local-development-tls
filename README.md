@@ -16,7 +16,7 @@ wants HTTPS.
   Docker image pinned by digest, so the names don't need to be reachable from the
   internet.
 - Every run issues new certificates with new keys as combined PEM files (the chain
-  followed by the key), zipped into the artifact `https-certificate`, kept 90 days:
+  followed by the key), zipped into the artifact `https-certificate`, kept 60 days:
   one per registered domain, named after what it covers with `_` for any label
   (like lego names wildcard certificates). Past 100 names (Let's Encrypt's limit) a
   domain is split by its highest subdomain level. The run's summary lists them:
@@ -67,7 +67,7 @@ wants HTTPS.
 
    on:
      schedule:
-       - cron: "17 4 1 * *"
+       - cron: "17 4 1,16 * *"
      workflow_dispatch:
 
    permissions: {}
@@ -102,7 +102,8 @@ wants HTTPS.
 > Try it with `server: letsencrypt-staging` first: untrusted certificates, but no
 > rate limits (production allows 50 certificates per domain a week).
 
-Monthly runs keep a 90-day certificate with 60 days to spare; run it by hand
+Runs on the 1st and 16th keep a 90-day certificate with 75 days to spare, and the
+60-day artifact keeps the newest ones; run it by hand
 (`gh workflow run https-certificate.yml`) after changing the names. A wildcard
 covers one label: `*.example-dev.com` doesn't cover `a.b.example-dev.com`. It needs
 a Linux runner with Docker (`ubuntu-latest` has it).
@@ -114,7 +115,7 @@ a Linux runner with Docker (`ubuntu-latest` has it).
 | `domains` | | Comma-separated names to certify; `{a,b}` expands like in bash. One certificate per registered domain, split by subdomain past 100 names (Let's Encrypt's limit); at most 20. |
 | `cloudflare-token` | | The Cloudflare API token; pass it from a secret. |
 | `server` | `letsencrypt` | ACME server: a URL or a lego shortcode such as `letsencrypt-staging`. |
-| `retention-days` | `90` | How long the artifact is kept. |
+| `retention-days` | `60` | How long the artifact is kept. |
 
 ## Using the certificates
 
